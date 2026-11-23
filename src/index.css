@@ -1,0 +1,700 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================================
+   BURGUNDY ELEGANCE — LUXURY EDITORIAL DESIGN SYSTEM (LIGHT & DARK MODES)
+   ============================================================================ */
+:root {
+  /* Light Mode Brand Palette — Warm Off-White, Burgundy & Muted Olive */
+  --bg-primary: #f5f1e9; /* Warm Off-White */
+  --bg-secondary: #efe9dd; /* Subtle Warm Off-White Linen */
+  --bg-card: #faf7f1; /* Warm Off-White Paper */
+  --bg-surface-soft: #ebe4d7; /* Soft Warm Beige Inset */
+  --bg-nav: rgba(245, 241, 233, 0.93);
+  --bg-nav-alt: rgba(239, 233, 221, 0.94);
+  --bg-scrim: rgba(41, 37, 34, 0.58);
+
+  --text-primary: #292522; /* Warm Charcoal */
+  --text-secondary: #636b2f; /* Deep Muted Olive */
+  --text-muted: rgba(41, 37, 34, 0.72);
+  --text-on-secondary: rgba(41, 37, 34, 0.78);
+
+  --accent: #741f36; /* Rich Burgundy (Primary Brand Accent) */
+  --accent-hover: #5c172a;
+  --accent-fg: #f5f1e9;
+  --accent-soft: rgba(116, 31, 54, 0.095);
+  --accent-soft-strong: rgba(116, 31, 54, 0.165);
+  --card-hover-border: #741f36;
+
+  --accent-secondary: #636b2f; /* Deep Muted Olive (Secondary Accent) */
+  --accent-secondary-hover: #4e5524;
+  --accent-secondary-soft: rgba(99, 107, 47, 0.1);
+  --accent-secondary-border: rgba(99, 107, 47, 0.45);
+
+  --border: #d9cfc0; /* Warm Beige */
+  --border-on-secondary: #d9cfc0;
+  --border-strong: rgba(41, 37, 34, 0.34);
+  --manifesto-base-color: rgba(41, 37, 34, 0.3);
+
+  /* Delicate Editorial Elevation (Subtle Burgundy Warmth on Interactive Hover) */
+  --shadow-card:
+    0 12px 32px -18px rgba(41, 37, 34, 0.12),
+    0 1px 2px rgba(41, 37, 34, 0.05);
+  --shadow-card-hover:
+    0 18px 42px -16px rgba(116, 31, 54, 0.22),
+    0 2px 8px rgba(116, 31, 54, 0.08);
+  --shadow-modal: 0 32px 72px -24px rgba(41, 37, 34, 0.36);
+
+  /* Subtle Architectural Radii (Refined, Never Bubbly) */
+  --radius-control: 2px;
+  --radius-card: 4px;
+
+  /* Luxury Editorial Typography */
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Easing Curves */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-stage: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Scroll-Driven Choreography Variables (Written on :root by Single Scroll Handler) */
+  --page-p: 0;
+
+  /* Stage 1: Opening Hero — ATHARVA PATEL (Three Independent Variables) */
+  --hero-type-y: 0px;
+  --hero-type-scale: 1;
+  --hero-type-alpha: 1;
+  --hero-meta-alpha: 1;
+
+  /* Stage 2: Manifesto / About — Bottom-Up Ink Wipe */
+  --manifesto-wipe: 0%;
+  --manifesto-scale: 1;
+
+  /* Stage 3: Projects — Horizontal Editorial Rail */
+  --rail-x: 0px;
+  --rail-progress: 0;
+
+  /* Stage 4: Skills / Experience / Education — Technical Dossier Meter */
+  --packet-meter: 0.25;
+
+  /* Stage 5: Closing Generative Contour Visual */
+  --season-y: -4%;
+  --season-scale: 1.1;
+}
+
+html.dark {
+  /* Dark Mode Brand Palette — Matte Black Edition */
+  --bg-primary: #101010; /* Matte Black */
+  --bg-secondary: #161616; /* Elevated Matte Black */
+  --bg-card: #1a1a1a; /* Matte Card Surface */
+  --bg-surface-soft: #141414;
+  --bg-nav: rgba(16, 16, 16, 0.92);
+  --bg-nav-alt: rgba(22, 22, 22, 0.94);
+  --bg-scrim: rgba(6, 6, 6, 0.82);
+
+  --text-primary: #f5eee6; /* Warm Ivory */
+  --text-secondary: #d6b99a; /* Champagne */
+  --text-muted: rgba(214, 185, 154, 0.8);
+  --text-on-secondary: rgba(214, 185, 154, 0.88);
+
+  --accent: #5e1224; /* Deep Burgundy */
+  --accent-hover: #75182e;
+  --accent-fg: #f5eee6;
+  --accent-soft: rgba(94, 18, 36, 0.28);
+  --accent-soft-strong: rgba(94, 18, 36, 0.42);
+
+  --accent-secondary: #d6b99a; /* Preserved Dark Mode Champagne Secondary */
+  --accent-secondary-hover: #f5eee6;
+  --accent-secondary-soft: rgba(214, 185, 154, 0.12);
+  --accent-secondary-border: rgba(214, 185, 154, 0.42);
+  --card-hover-border: #d6b99a;
+
+  --border: #2b2728;
+  --border-on-secondary: #2e2a2b;
+  --border-strong: rgba(214, 185, 154, 0.38);
+  --manifesto-base-color: rgba(245, 238, 230, 0.28);
+
+  --shadow-card:
+    0 14px 36px -18px rgba(0, 0, 0, 0.68),
+    0 1px 0 rgba(245, 238, 230, 0.04);
+  --shadow-card-hover:
+    0 20px 44px -18px rgba(0, 0, 0, 0.84),
+    0 1px 0 rgba(214, 185, 154, 0.08);
+  --shadow-modal: 0 36px 84px -24px rgba(0, 0, 0, 0.82);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    scroll-behavior: smooth;
+    /* Use clip (not hidden) so position: sticky never breaks */
+    overflow-x: clip;
+  }
+
+  /* Critical when SmoothScrollEngine drives window.scrollTo in rAF */
+  html.smooth-scroll-active {
+    scroll-behavior: auto;
+  }
+
+  html.smooth-scroll-stopped {
+    overflow: hidden;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.68;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html.dark body {
+    letter-spacing: 0.006em;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  :focus-visible {
+    outline: 1.5px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* Smooth understated transition strictly during theme switches (no layout shift) */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition:
+    background-color 260ms var(--ease-out),
+    color 260ms var(--ease-out),
+    border-color 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out),
+    fill 260ms var(--ease-out),
+    stroke 260ms var(--ease-out) !important;
+}
+
+/* Luxury Editorial Typographic Register */
+.ed-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.ed-display-caps {
+  font-family: var(--font-display);
+  font-weight: 500;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: 0.015em;
+}
+
+.ed-mono {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.45;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.ed-body {
+  font-family: var(--font-body);
+}
+
+/* Reusable Luxury Card Surface */
+.ed-card {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.ed-card-interactive {
+  transition:
+    border-color 200ms var(--ease-out),
+    box-shadow 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
+}
+
+.ed-card-interactive:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.ed-control {
+  border-radius: var(--radius-control);
+}
+
+/* Global Top Read Progress Bar */
+.ed-scroll-meter {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 60;
+  background: var(--border);
+  pointer-events: none;
+}
+
+.ed-scroll-meter-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--page-p));
+  will-change: transform;
+}
+
+/* Fixed Luxury Editorial Masthead (3-Zone Contract) */
+.ed-nav {
+  position: fixed;
+  top: 2px;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-nav);
+  color: var(--text-primary);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    background-color 260ms var(--ease-out),
+    color 260ms var(--ease-out),
+    border-color 260ms var(--ease-out);
+}
+
+.ed-nav[data-tone="secondary"] {
+  background: var(--bg-nav-alt);
+  border-bottom-color: var(--border-on-secondary);
+}
+
+/* Normal non-pinned anchor targets clear the fixed masthead */
+.ed-anchor-offset {
+  scroll-margin-top: 72px;
+}
+
+/* Pinned Stage Architecture */
+.ed-stage {
+  position: relative;
+  width: 100%;
+}
+
+.ed-stage-inner {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Stage 1: Opening Poster Hero — ATHARVA PATEL (235svh) */
+.ed-stage-hero {
+  height: 235svh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.ed-hero-lockup {
+  transform: translate3d(0, var(--hero-type-y), 0) scale(var(--hero-type-scale));
+  opacity: var(--hero-type-alpha);
+  transform-origin: center center;
+  transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+.ed-hero-meta {
+  opacity: var(--hero-meta-alpha);
+  will-change: opacity;
+}
+
+/* Stage 2: Manifesto / About — Bottom-Up Ink Reveal (165svh, Secondary Surface) */
+.ed-stage-manifesto {
+  height: 165svh;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-top: 1px solid var(--border-on-secondary);
+}
+
+.ed-manifesto-scale-box {
+  transform: scale(var(--manifesto-scale));
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.ed-manifesto-text {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(32px, 5vw, 72px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  width: min(22ch, 90vw);
+  margin: 0;
+}
+
+.ed-manifesto-base {
+  color: var(--manifesto-base-color);
+}
+
+.ed-manifesto-fill {
+  position: absolute;
+  inset: 0;
+  color: var(--text-primary);
+  clip-path: inset(calc(100% - var(--manifesto-wipe)) 0 0);
+  will-change: clip-path;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Stage 3: Projects — Horizontal Editorial Rail (Exact Calculated Scroll Span) */
+.ed-stage-rail {
+  height: calc(100svh + var(--rail-scroll-span, 0px));
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-top: 1px solid var(--border-on-secondary);
+}
+
+.ed-rail-viewport {
+  width: 100%;
+  overflow: visible;
+}
+
+.ed-rail-track {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: clamp(18px, 2.2vw, 32px);
+  padding-inline: var(--rail-pad-inline, 32px);
+  width: max-content;
+  transform: translate3d(var(--rail-x), 0, 0);
+  will-change: transform;
+}
+
+.ed-project-card {
+  flex: 0 0 clamp(310px, 34vw, 440px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition:
+    border-color 200ms var(--ease-out),
+    box-shadow 200ms var(--ease-out);
+}
+
+.ed-project-card:hover {
+  border-color: var(--card-hover-border);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.ed-rail-meter-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--rail-progress));
+  will-change: transform;
+}
+
+/* When filtered results fit within the viewport with zero horizontal overflow, unpin cleanly */
+.ed-stage-rail[data-static="true"] {
+  height: auto;
+}
+
+.ed-stage-rail[data-static="true"] .ed-stage-inner {
+  position: relative;
+  height: auto;
+  overflow: visible;
+  padding-top: 5rem;
+  padding-bottom: 4.5rem;
+  gap: 2.25rem;
+}
+
+.ed-stage-rail[data-static="true"] .ed-rail-track {
+  transform: none !important;
+}
+
+.ed-stage-rail[data-static="true"] .ed-rail-meter-fill {
+  transform: scaleX(1) !important;
+}
+
+/* On narrow phones where horizontal pinning is less ergonomic, allow natural wrapping */
+@media (max-width: 639px) {
+  .ed-stage-rail {
+    height: auto;
+  }
+
+  .ed-stage-rail .ed-stage-inner {
+    position: relative;
+    height: auto;
+    overflow: visible;
+    padding-top: 4.5rem;
+    padding-bottom: 3.5rem;
+    gap: 1.75rem;
+  }
+
+  .ed-rail-track {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    transform: none !important;
+    padding-inline: 20px;
+  }
+
+  .ed-project-card {
+    flex: 1 1 100%;
+    max-width: 440px;
+  }
+
+  .ed-rail-meter-fill {
+    transform: scaleX(1) !important;
+  }
+}
+
+/* Stage 4: Things I Work With — Stable Sticky Technical Dossier */
+.ed-stage-artifact {
+  position: relative;
+  height: auto;
+  overflow: visible;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border-top: 1px solid var(--border);
+}
+
+.ed-packet-paper {
+  position: relative;
+  width: min(360px, 100%);
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+@media (min-width: 1024px) {
+  .ed-packet-paper {
+    width: min(360px, 44svh, 100%);
+  }
+}
+
+.ed-packet-meter-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--packet-meter));
+  transition: transform 0.25s var(--ease-out);
+  will-change: transform;
+}
+
+.ed-cue {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background-color: var(--bg-card);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color 200ms var(--ease-out),
+    background-color 200ms var(--ease-out),
+    box-shadow 200ms var(--ease-out);
+}
+
+.ed-cue[data-lit="true"] {
+  border-color: var(--accent);
+  background-color: var(--accent-soft);
+}
+
+.ed-cue[data-current="true"] {
+  border-color: var(--accent);
+  background-color: var(--accent-soft-strong);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Stage 5: Closing Generative Contour Band (165svh on desktop, natural flow on mobile) */
+.ed-stage-season {
+  height: 165svh;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-top: 1px solid var(--border-on-secondary);
+}
+
+.ed-season-canvas-wrap {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(0, var(--season-y), 0) scale(var(--season-scale));
+  transform-origin: center center;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.ed-chapter {
+  opacity: 0.62;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition:
+    opacity 240ms var(--ease-out),
+    border-color 240ms var(--ease-out),
+    box-shadow 240ms var(--ease-out);
+}
+
+.ed-chapter[data-active="true"] {
+  opacity: 1;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-card-hover);
+}
+
+@media (max-width: 767px) {
+  .ed-stage-season {
+    height: auto;
+  }
+
+  .ed-stage-season .ed-stage-inner {
+    position: relative;
+    height: auto;
+    overflow: hidden;
+  }
+
+  .ed-season-canvas-wrap {
+    transform: none !important;
+  }
+
+  .ed-chapter {
+    opacity: 1;
+  }
+}
+
+/* Crisp non-disappearing transition when switching click-activated study topics */
+@keyframes ed-study-enter {
+  from {
+    opacity: 0.72;
+    transform: translate3d(0, 3px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.ed-study-swap {
+  animation: ed-study-enter 0.18s var(--ease-out) both;
+}
+
+/* Landscape short-viewport safety: prevent clipping inside 100svh pinned stages */
+@media (max-height: 600px) {
+  .ed-stage-hero,
+  .ed-stage-manifesto,
+  .ed-stage-rail,
+  .ed-stage-season {
+    height: auto;
+  }
+
+  .ed-stage-inner {
+    position: relative;
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+  }
+
+  .ed-hero-lockup,
+  .ed-rail-track {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .ed-manifesto-fill {
+    clip-path: inset(0 0 0 0) !important;
+  }
+
+  .ed-rail-track {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    padding-inline: 20px;
+  }
+}
+
+/* Reduced Motion Accessibility — Unpin Stages, Wrap Rail, Instant Reveals */
+@media (prefers-reduced-motion: reduce) {
+  .ed-stage-hero,
+  .ed-stage-manifesto,
+  .ed-stage-rail,
+  .ed-stage-season {
+    height: auto !important;
+  }
+
+  .ed-stage-inner {
+    position: relative !important;
+    height: auto !important;
+    min-height: 70svh;
+    overflow: visible !important;
+  }
+
+  .ed-hero-lockup {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+
+  .ed-hero-meta {
+    opacity: 1 !important;
+  }
+
+  .ed-manifesto-scale-box {
+    transform: none !important;
+  }
+
+  .ed-manifesto-fill {
+    clip-path: inset(0 0 0 0) !important;
+  }
+
+  .ed-rail-track {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    width: 100% !important;
+    transform: none !important;
+  }
+
+  .ed-rail-meter-fill {
+    transform: scaleX(1) !important;
+  }
+
+  .ed-study-swap {
+    animation: none !important;
+  }
+
+  .ed-season-canvas-wrap {
+    transform: none !important;
+  }
+
+  .ed-chapter {
+    opacity: 1 !important;
+  }
+}

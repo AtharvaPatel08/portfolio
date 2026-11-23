@@ -37,8 +37,7 @@ interface StageMetrics {
   manifestoSpan: number;
   railTop: number;
   railHeight: number;
-  railSpan: number;
-  railOverflow: number;
+  projectCardMids: number[];
   artifactTop: number;
   artifactHeight: number;
   artifactItemMids: number[];
@@ -149,15 +148,15 @@ function PortfolioExperience() {
   );
   const [activeTopicIndex, setActiveTopicIndex] = useState(0);
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [railStatic, setRailStatic] = useState(false);
+  const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNavHref, setActiveNavHref] = useState<string>("");
 
+  const lastProjectIndexRef = useRef(0);
   const lastArtifactPhaseRef = useRef(0);
   const lastSeasonChapterRef = useRef(0);
   const lastNavToneRef = useRef<"primary" | "secondary">("primary");
   const lastActiveNavRef = useRef<string>("");
-  const lastRailStaticRef = useRef(false);
   const pendingRailAnchorRef = useRef(false);
   const measureRafRef = useRef(0);
   const copyTimerRef = useRef<number | null>(null);
@@ -173,8 +172,7 @@ function PortfolioExperience() {
   const manifestoBaseRef = useRef<HTMLParagraphElement | null>(null);
   const manifestoFillRef = useRef<HTMLParagraphElement | null>(null);
   const railStageRef = useRef<HTMLElement | null>(null);
-  const railInnerRef = useRef<HTMLDivElement | null>(null);
-  const railTrackRef = useRef<HTMLDivElement | null>(null);
+  const projectCardRefs = useRef<(HTMLElement | null)[]>([]);
   const artifactStageRef = useRef<HTMLElement | null>(null);
   const artifactItemRefs = useRef<(HTMLLIElement | null)[]>([]);
   const indexBandRef = useRef<HTMLElement | null>(null);
@@ -191,8 +189,7 @@ function PortfolioExperience() {
     manifestoSpan: 1,
     railTop: 0,
     railHeight: 1,
-    railSpan: 1,
-    railOverflow: 0,
+    projectCardMids: [],
     artifactTop: 0,
     artifactHeight: 1,
     artifactItemMids: [],
@@ -294,7 +291,6 @@ function PortfolioExperience() {
 
   const measureLayout = useCallback(() => {
     const vh = Math.max(window.innerHeight, 1);
-    const vw = window.innerWidth;
 
     const measureStage = (el: HTMLElement | null) => {
       if (!el) return { top: 0, span: 1, height: 1 };
@@ -308,65 +304,16 @@ function PortfolioExperience() {
       return { top, span, height };
     };
 
-    // Size Stage 3 ("Ideas made tangible.") to its exact horizontal overflow BEFORE measuring downstream sections
-    const railEl = railStageRef.current;
-    const track = railTrackRef.current;
-    const inner = railInnerRef.current;
-    const viewportWidth = inner ? inner.clientWidth : vw;
-    const isShortViewport = vh <= 600;
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (railEl) {
-      const padInline =
-        vw < 640
-          ? 20
-          : Math.max(32, Math.round((viewportWidth - 1440) / 2 + 32));
-      const padInlineVal = `${padInline}px`;
-      if (railEl.style.getPropertyValue("--rail-pad-inline") !== padInlineVal) {
-        railEl.style.setProperty("--rail-pad-inline", padInlineVal);
-      }
-    }
-
-    const trackWidth = track
-      ? Math.max(track.scrollWidth, track.offsetWidth)
-      : 0;
-    const railOverflow =
-      track && vw >= 640 && !isShortViewport && !prefersReduced
-        ? Math.max(0, trackWidth - viewportWidth)
-        : 0;
-
-    const nextRailStatic =
-      vw >= 640 && !isShortViewport && !prefersReduced && railOverflow <= 2;
-
-    if (railEl) {
-      const railScrollSpan =
-        railOverflow > 2 ? Math.round(railOverflow * 1.1) : 0;
-      const nextSpanVal = `${railScrollSpan}px`;
-      if (railEl.style.getPropertyValue("--rail-scroll-span") !== nextSpanVal) {
-        railEl.style.setProperty("--rail-scroll-span", nextSpanVal);
-      }
-      const nextStaticStr = nextRailStatic ? "true" : "false";
-      if (railEl.dataset.static !== nextStaticStr) {
-        railEl.dataset.static = nextStaticStr;
-      }
-    }
-
-    if (nextRailStatic !== lastRailStaticRef.current) {
-      lastRailStaticRef.current = nextRailStatic;
-      setRailStatic(nextRailStatic);
-    }
-
     const hero = measureStage(heroStageRef.current);
     const manifesto = measureStage(manifestoStageRef.current);
 
-    const railTop = railEl
-      ? railEl.getBoundingClientRect().top + window.scrollY
-      : 0;
-    const railHeight = railEl ? Math.max(railEl.offsetHeight, 1) : 1;
-    const railInnerH = inner && inner.offsetHeight > 0 ? inner.offsetHeight : vh;
-    const railSpan = Math.max(railHeight - railInnerH, 1);
+    const rail = measureStage(railStageRef.current);
+    const projectCardMids = projectCardRefs.current
+      .filter((el): el is HTMLElement => el !== null)
+      .map((el) => {
+        const rect = el.getBoundingClientRect();
+        return rect.top + window.scrollY + rect.height * 0.5;
+      });
 
     const artifact = measureStage(artifactStageRef.current);
     const artifactItemMids = artifactItemRefs.current
@@ -394,10 +341,9 @@ function PortfolioExperience() {
       manifestoTop: manifesto.top,
       manifestoHeight: manifesto.height,
       manifestoSpan: manifesto.span,
-      railTop,
-      railHeight,
-      railSpan,
-      railOverflow,
+      railTop: rail.top,
+      railHeight: rail.height,
+      projectCardMids,
       artifactTop: artifact.top,
       artifactHeight: artifact.height,
       artifactItemMids,
@@ -467,13 +413,35 @@ function PortfolioExperience() {
       root.style.setProperty("--manifesto-wipe", `${wipePct.toFixed(2)}%`);
       root.style.setProperty("--manifesto-scale", manifestoScale.toFixed(4));
 
-      // STAGE 3: Projects — Horizontal Editorial Rail (exact overflow width, zero trailing blank scroll)
-      const pRail =
-        m.railOverflow <= 2 ? 1 : clamp01((y - m.railTop) / m.railSpan);
-      const railX = m.railOverflow <= 2 ? 0 : -pRail * m.railOverflow;
+      // STAGE 3: Projects — Strictly Vertical Editorial Showcase
+      const projectMids = m.projectCardMids;
+      let nextProjectIdx = 0;
+      let pRail = 1;
 
-      root.style.setProperty("--rail-x", `${railX.toFixed(2)}px`);
+      if (projectMids.length > 0) {
+        const focusY = y + window.innerHeight * 0.48;
+        const firstMid = projectMids[0];
+        const lastMid = projectMids[projectMids.length - 1];
+        pRail =
+          projectMids.length === 1
+            ? 1
+            : clamp01((focusY - firstMid) / Math.max(lastMid - firstMid, 1));
+
+        for (let i = 0; i < projectMids.length; i++) {
+          const threshold =
+            i === 0 ? -Infinity : (projectMids[i - 1] + projectMids[i]) * 0.5;
+          if (focusY >= threshold) {
+            nextProjectIdx = i;
+          }
+        }
+      }
+
       root.style.setProperty("--rail-progress", pRail.toFixed(4));
+
+      if (nextProjectIdx !== lastProjectIndexRef.current) {
+        lastProjectIndexRef.current = nextProjectIdx;
+        setActiveProjectIndex(nextProjectIdx);
+      }
 
       // STAGE 4: Things I Work With — Sticky Technical Dossier synced cleanly to left-side items
       const mids = m.artifactItemMids;
@@ -560,7 +528,9 @@ function PortfolioExperience() {
         engine.resize();
         if (pendingRailAnchorRef.current) {
           pendingRailAnchorRef.current = false;
-          engine.scrollTo(metricsRef.current.railTop, { duration: 0.4 });
+          engine.scrollTo(Math.max(0, metricsRef.current.railTop - 72), {
+            duration: 0.4,
+          });
         }
         applyScrollChoreography(engine.getSnapshot());
       }
@@ -575,7 +545,7 @@ function PortfolioExperience() {
 
     const ro = new ResizeObserver(scheduleSync);
     ro.observe(document.documentElement);
-    if (railTrackRef.current) ro.observe(railTrackRef.current);
+    if (railStageRef.current) ro.observe(railStageRef.current);
 
     window.addEventListener("resize", scheduleSync, { passive: true });
     window.addEventListener("orientationchange", scheduleSync, { passive: true });
@@ -1018,37 +988,33 @@ function PortfolioExperience() {
         </section>
 
         {/* ================================================================
-            STAGE 3: SELECTED WORK — HORIZONTAL EDITORIAL RAIL (Secondary Surface)
+            STAGE 3: SELECTED WORK — VERTICAL EDITORIAL SHOWCASE
+            (Strictly Vertical Card Movement Across Full Screen & All Viewports)
             ================================================================ */}
         <section
           id="work"
           ref={railStageRef}
-          data-static={railStatic ? "true" : "false"}
           aria-label="Selected Work Projects"
-          className="ed-stage ed-stage-rail ed-olive-surface"
+          className="ed-anchor-offset ed-stage-rail ed-olive-surface px-5 py-20 sm:px-8 sm:py-24"
         >
-          <div
-            ref={railInnerRef}
-            className="ed-stage-inner flex flex-col justify-center gap-5 pt-16 pb-6 sm:gap-7"
-          >
-            {/* Top Header & Existing Discipline Filter */}
-            <div className="mx-auto flex w-full max-w-[1440px] shrink-0 flex-wrap items-end justify-between gap-3 px-5 sm:gap-4 sm:px-8">
-              <div>
-                <p className="ed-mono text-[var(--text-secondary)]">
-                  {projects.label}
-                </p>
-                <h2 className="ed-display mt-1.5 text-[clamp(32px,4.4vw,58px)] text-[var(--text-primary)]">
-                  {projects.heading}
-                </h2>
-                <p className="mt-1.5 max-w-[54ch] text-xs leading-relaxed text-[var(--text-on-secondary)] sm:text-sm">
-                  {projects.subtitle}
-                </p>
-              </div>
+          <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-12">
+            {/* Left Sticky Editorial Column: Title, Filter, Vertical Progress & Index */}
+            <div className="lg:sticky lg:top-24 lg:col-span-5 lg:self-start">
+              <p className="ed-mono text-[var(--text-secondary)]">
+                {projects.label}
+              </p>
+              <h2 className="ed-display mt-2 text-[clamp(34px,4.6vw,62px)] text-[var(--text-primary)]">
+                {projects.heading}
+              </h2>
+              <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-[var(--text-on-secondary)]">
+                {projects.subtitle}
+              </p>
 
+              {/* Preserved Discipline Filter Tabs */}
               <div
                 role="tablist"
                 aria-label="Filter projects by discipline"
-                className="ed-control ed-light-paper inline-flex shrink-0 items-center overflow-hidden border border-[var(--border)] bg-[var(--bg-card)] shadow-[var(--shadow-card)]"
+                className="ed-control ed-light-paper mt-7 inline-flex max-w-full flex-wrap items-center overflow-hidden border border-[var(--border)] bg-[var(--bg-card)] shadow-[var(--shadow-card)]"
               >
                 {filterButtons.map((btn, idx) => {
                   const active = workFilter === btn.id;
@@ -1062,6 +1028,8 @@ function PortfolioExperience() {
                         if (window.scrollY > metricsRef.current.railTop + 16) {
                           pendingRailAnchorRef.current = true;
                         }
+                        lastProjectIndexRef.current = 0;
+                        setActiveProjectIndex(0);
                         setWorkFilter(btn.id);
                       }}
                       className={`ed-mono min-h-[38px] cursor-pointer whitespace-nowrap px-4 py-2 transition-colors duration-150 ${
@@ -1077,14 +1045,101 @@ function PortfolioExperience() {
                   );
                 })}
               </div>
+
+              {/* Hairline Vertical Progress Meter with Burgundy Fill */}
+              <div className="mt-8 border-t border-[var(--border-on-secondary)] pt-4">
+                <div className="flex items-center justify-between gap-4 pb-2">
+                  <span className="ed-mono text-[var(--text-on-secondary)]">
+                    0{Math.min(activeProjectIndex + 1, filteredProjects.length)}{" "}
+                    / 0{filteredProjects.length} SELECTED WORK
+                  </span>
+                  <span className="ed-mono text-[var(--text-secondary)]">
+                    SCROLL VERTICALLY ↓
+                  </span>
+                </div>
+                <div
+                  className="h-[2px] w-full bg-[var(--border-on-secondary)]"
+                  aria-hidden="true"
+                >
+                  <div className="ed-rail-meter-fill" />
+                </div>
+              </div>
+
+              {/* Quick-Jump Vertical Project Index (Desktop Full-Screen Reference) */}
+              <ol className="mt-6 hidden divide-y divide-[var(--border-on-secondary)] border-b border-[var(--border-on-secondary)] lg:block">
+                {filteredProjects.map((project, idx) => {
+                  const isCurrent =
+                    idx ===
+                    Math.min(activeProjectIndex, filteredProjects.length - 1);
+                  return (
+                    <li key={project.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const mid = metricsRef.current.projectCardMids[idx];
+                          if (typeof mid === "number") {
+                            const targetY = Math.max(
+                              0,
+                              mid - window.innerHeight * 0.48
+                            );
+                            scrollTo(targetY, { duration: 0.65 });
+                          }
+                        }}
+                        className="flex w-full cursor-pointer items-baseline justify-between gap-4 py-3 text-left transition-colors duration-150 hover:text-[var(--accent)]"
+                      >
+                        <span className="flex items-baseline gap-3">
+                          <span
+                            className={`ed-mono ${
+                              isCurrent
+                                ? "text-[var(--accent)]"
+                                : "text-[var(--text-secondary)]"
+                            }`}
+                          >
+                            {project.index}
+                          </span>
+                          <span
+                            className={`ed-display text-xl ${
+                              isCurrent
+                                ? "text-[var(--text-primary)]"
+                                : "text-[var(--text-muted)]"
+                            }`}
+                          >
+                            {project.name}
+                          </span>
+                        </span>
+                        <span
+                          className={`ed-mono shrink-0 ${
+                            isCurrent
+                              ? "text-[var(--accent)]"
+                              : "text-[var(--text-muted)]"
+                          }`}
+                        >
+                          {isCurrent ? "VIEWING" : project.category}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
 
-            {/* Non-Wrapping Horizontal Editorial Track Measured to Exact Overflow Width */}
-            <div className="ed-rail-viewport shrink-0">
-              <div ref={railTrackRef} className="ed-rail-track">
-                {filteredProjects.map((project) => (
-                  <article key={project.id} className="ed-project-card">
-                    <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)] px-4 py-2">
+            {/* Right Strictly Vertical Card Stream (Moves Vertically on Scroll Everywhere) */}
+            <div className="flex flex-col gap-8 sm:gap-10 lg:col-span-7">
+              {filteredProjects.map((project, idx) => {
+                const isActiveCard =
+                  idx ===
+                  Math.min(activeProjectIndex, filteredProjects.length - 1);
+                return (
+                  <article
+                    key={project.id}
+                    ref={(el) => {
+                      projectCardRefs.current[idx] = el;
+                      projectCardRefs.current.length = filteredProjects.length;
+                    }}
+                    data-active={isActiveCard ? "true" : "false"}
+                    className="ed-project-card"
+                  >
+                    <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)] px-5 py-2.5">
                       <span className="ed-mono text-[var(--text-secondary)]">
                         {project.index}
                       </span>
@@ -1097,7 +1152,7 @@ function PortfolioExperience() {
                       type="button"
                       onClick={() => setSelectedProject(project)}
                       aria-label={`Open project dossier for ${project.name}`}
-                      className="group relative h-[clamp(120px,20svh,190px)] w-full shrink-0 cursor-pointer overflow-hidden border-b border-[var(--border)] bg-[var(--bg-surface-soft)] text-left"
+                      className="group relative h-[clamp(190px,28svh,300px)] w-full shrink-0 cursor-pointer overflow-hidden border-b border-[var(--border)] bg-[var(--bg-surface-soft)] text-left"
                     >
                       {project.previewImage ? (
                         <img
@@ -1111,34 +1166,34 @@ function PortfolioExperience() {
                       ) : (
                         <ProjectPlateCanvas kind={project.plateGeometry} />
                       )}
-                      <span className="ed-mono ed-control absolute right-2.5 bottom-2.5 border border-[var(--border-strong)] bg-[var(--bg-card)] px-2.5 py-1 text-[var(--text-primary)] transition-colors duration-150 group-hover:border-[var(--accent-secondary)] group-hover:text-[var(--accent-secondary)]">
+                      <span className="ed-mono ed-control absolute right-3 bottom-3 border border-[var(--border-strong)] bg-[var(--bg-card)] px-3 py-1 text-[var(--text-primary)] transition-colors duration-150 group-hover:border-[var(--accent-secondary)] group-hover:text-[var(--accent-secondary)]">
                         DOSSIER ↗
                       </span>
                     </button>
 
-                    <div className="flex flex-1 flex-col justify-between gap-3 p-4 sm:p-5">
+                    <div className="flex flex-1 flex-col justify-between gap-4 p-5 sm:p-7">
                       <div>
                         <p className="ed-mono text-[var(--text-secondary)]">
                           {project.category}
                         </p>
-                        <h3 className="ed-display mt-1.5 text-[clamp(24px,2.3vw,32px)] text-[var(--text-primary)]">
+                        <h3 className="ed-display mt-1.5 text-[clamp(28px,2.8vw,38px)] text-[var(--text-primary)]">
                           {project.name}
                         </h3>
-                        <p className="mt-1 text-xs font-medium text-[var(--text-muted)]">
+                        <p className="mt-1.5 text-sm font-medium text-[var(--text-muted)]">
                           {project.subtitle}
                         </p>
-                        <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-[var(--text-muted)] sm:text-[13px]">
+                        <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)] sm:text-[15px]">
                           {project.description}
                         </p>
                       </div>
 
-                      <div className="space-y-2.5 border-t border-[var(--border)] pt-3">
-                        <p className="ed-mono truncate text-[var(--text-muted)]">
+                      <div className="space-y-3 border-t border-[var(--border)] pt-4">
+                        <p className="ed-mono text-[var(--text-muted)]">
                           {project.technologies.join(" · ")}
                         </p>
 
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="flex items-center gap-3.5">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-center gap-4">
                             {project.liveUrl && (
                               <a
                                 href={project.liveUrl}
@@ -1171,28 +1226,8 @@ function PortfolioExperience() {
                       </div>
                     </div>
                   </article>
-                ))}
-              </div>
-            </div>
-
-            {/* Hairline Progress Meter with Burgundy Fill */}
-            <div className="mx-auto w-full max-w-[1440px] shrink-0 px-5 sm:px-8">
-              <div className="flex items-center justify-between pb-2">
-                <span className="ed-mono text-[var(--text-on-secondary)]">
-                  01 — 0{filteredProjects.length} SELECTED WORK
-                </span>
-                <span className="ed-mono text-[var(--text-secondary)]">
-                  {railStatic
-                    ? "SHOWING ALL MATCHING WORK"
-                    : "SCROLL TO WALK THE RAIL →"}
-                </span>
-              </div>
-              <div
-                className="h-[2px] w-full bg-[var(--border-on-secondary)]"
-                aria-hidden="true"
-              >
-                <div className="ed-rail-meter-fill" />
-              </div>
+                );
+              })}
             </div>
           </div>
         </section>

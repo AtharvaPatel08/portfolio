@@ -71,8 +71,7 @@
   --manifesto-wipe: 0%;
   --manifesto-scale: 1;
 
-  /* Stage 3: Projects — Horizontal Editorial Rail */
-  --rail-x: 0px;
+  /* Stage 3: Projects — Vertical Editorial Showcase */
   --rail-progress: 0;
 
   /* Stage 4: Skills / Experience / Education — Technical Dossier Meter */
@@ -365,32 +364,18 @@ html.theme-transitioning *::after {
   user-select: none;
 }
 
-/* Stage 3: Projects — Horizontal Editorial Rail (Exact Calculated Scroll Span) */
+/* Stage 3: Projects — Vertical Editorial Showcase (Strictly Vertical Everywhere) */
 .ed-stage-rail {
-  height: calc(100svh + var(--rail-scroll-span, 0px));
+  position: relative;
+  height: auto;
+  overflow: visible;
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   border-top: 1px solid var(--border-on-secondary);
 }
 
-.ed-rail-viewport {
-  width: 100%;
-  overflow: visible;
-}
-
-.ed-rail-track {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  gap: clamp(18px, 2.2vw, 32px);
-  padding-inline: var(--rail-pad-inline, 32px);
-  width: max-content;
-  transform: translate3d(var(--rail-x), 0, 0);
-  will-change: transform;
-}
-
 .ed-project-card {
-  flex: 0 0 clamp(310px, 34vw, 440px);
+  width: 100%;
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   background-color: var(--bg-card);
@@ -400,11 +385,12 @@ html.theme-transitioning *::after {
   flex-direction: column;
   overflow: hidden;
   transition:
-    border-color 200ms var(--ease-out),
-    box-shadow 200ms var(--ease-out);
+    border-color 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out);
 }
 
-.ed-project-card:hover {
+.ed-project-card:hover,
+.ed-project-card[data-active="true"] {
   border-color: var(--card-hover-border);
   box-shadow: var(--shadow-card-hover);
 }
@@ -415,62 +401,8 @@ html.theme-transitioning *::after {
   background: var(--accent);
   transform-origin: 0 50%;
   transform: scaleX(var(--rail-progress));
+  transition: transform 0.22s var(--ease-out);
   will-change: transform;
-}
-
-/* When filtered results fit within the viewport with zero horizontal overflow, unpin cleanly */
-.ed-stage-rail[data-static="true"] {
-  height: auto;
-}
-
-.ed-stage-rail[data-static="true"] .ed-stage-inner {
-  position: relative;
-  height: auto;
-  overflow: visible;
-  padding-top: 5rem;
-  padding-bottom: 4.5rem;
-  gap: 2.25rem;
-}
-
-.ed-stage-rail[data-static="true"] .ed-rail-track {
-  transform: none !important;
-}
-
-.ed-stage-rail[data-static="true"] .ed-rail-meter-fill {
-  transform: scaleX(1) !important;
-}
-
-/* On narrow phones where horizontal pinning is less ergonomic, allow natural wrapping */
-@media (max-width: 639px) {
-  .ed-stage-rail {
-    height: auto;
-  }
-
-  .ed-stage-rail .ed-stage-inner {
-    position: relative;
-    height: auto;
-    overflow: visible;
-    padding-top: 4.5rem;
-    padding-bottom: 3.5rem;
-    gap: 1.75rem;
-  }
-
-  .ed-rail-track {
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    transform: none !important;
-    padding-inline: 20px;
-  }
-
-  .ed-project-card {
-    flex: 1 1 100%;
-    max-width: 440px;
-  }
-
-  .ed-rail-meter-fill {
-    transform: scaleX(1) !important;
-  }
 }
 
 /* Stage 4: Things I Work With — Stable Sticky Technical Dossier */
@@ -611,7 +543,6 @@ html.theme-transitioning *::after {
 @media (max-height: 600px) {
   .ed-stage-hero,
   .ed-stage-manifesto,
-  .ed-stage-rail,
   .ed-stage-season {
     height: auto;
   }
@@ -623,8 +554,7 @@ html.theme-transitioning *::after {
     overflow: visible;
   }
 
-  .ed-hero-lockup,
-  .ed-rail-track {
+  .ed-hero-lockup {
     transform: none !important;
     opacity: 1 !important;
   }
@@ -632,20 +562,12 @@ html.theme-transitioning *::after {
   .ed-manifesto-fill {
     clip-path: inset(0 0 0 0) !important;
   }
-
-  .ed-rail-track {
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    padding-inline: 20px;
-  }
 }
 
-/* Reduced Motion Accessibility — Unpin Stages, Wrap Rail, Instant Reveals */
+/* Reduced Motion Accessibility — Unpin Stages, Instant Reveals */
 @media (prefers-reduced-motion: reduce) {
   .ed-stage-hero,
   .ed-stage-manifesto,
-  .ed-stage-rail,
   .ed-stage-season {
     height: auto !important;
   }
@@ -673,13 +595,6 @@ html.theme-transitioning *::after {
 
   .ed-manifesto-fill {
     clip-path: inset(0 0 0 0) !important;
-  }
-
-  .ed-rail-track {
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    width: 100% !important;
-    transform: none !important;
   }
 
   .ed-rail-meter-fill {
